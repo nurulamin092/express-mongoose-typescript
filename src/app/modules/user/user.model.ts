@@ -1,7 +1,9 @@
-import { model, Schema } from "mongoose"
-import { IUser } from "./user.interface"
+import { Model, model, Schema } from "mongoose"
+import { IUser, IUserMethods, UserModel } from "./user.interface"
 
-export const userSchema = new Schema<IUser>({
+// type UserModel = Model<IUser,{},IUserMethods>
+
+export const userSchema = new Schema<IUser,UserModel,IUserMethods>({
     id:{type:String,required:true,unique:true},
     role:{type:String,required:true},
 
@@ -26,5 +28,16 @@ export const userSchema = new Schema<IUser>({
 
 });
 
-export const User = model<IUser>('User',userSchema);
+userSchema.method('fullName',function fullName() {
+    return this.name.firstName + ' ' + this.name.lastName
+});
+
+userSchema.static('getAdminUsers', async function getAdminUsers() {
+    const admin = await this.find({role:"admin"});
+    return admin;
+    
+})
+
+export const User = model<IUser,UserModel>('User',userSchema);
+
 
